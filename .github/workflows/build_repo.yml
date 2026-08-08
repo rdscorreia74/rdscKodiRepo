@@ -28,7 +28,7 @@ jobs:
           
           # Zip the LegendasDivX addon
           cd service.subtitles.legendasdivx
-          zip -r ../public/service.subtitles.legendasdivx/service.subtitles.legendasdivx-1.0.7.zip . -x "*.git*"
+          zip -r public/service.subtitles.legendasdivx/service.subtitles.legendasdivx-1.0.7.zip service.subtitles.legendasdivx -x "*.git*"
           cd ..
 
           # Zip the repository addon
