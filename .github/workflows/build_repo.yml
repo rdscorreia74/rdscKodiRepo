@@ -12,10 +12,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Checkout LegendasDivX Addon Code
+      - name: Checkout LegendasDivX Addon
         uses: actions/checkout@v4
         with:
           repository: 'rdscorreia74/service.subtitles.legendasdivx'
@@ -27,11 +27,19 @@ jobs:
           mkdir -p public/service.subtitles.legendasdivx
           mkdir -p public/repository.rdscKodiRepo
 
-          # Zip the LegendasDivX addon
-          zip -r public/service.subtitles.legendasdivx/service.subtitles.legendasdivx-1.0.7.zip service.subtitles.legendasdivx -x "*.git*"
+          # Extract version dynamically from addon.xml
+          ADDON_VER=$(python3 -c "import xml.etree.ElementTree as ET; print(ET.parse('service.subtitles.legendasdivx/addon.xml').getroot().attrib['version'])")
+          REPO_VER=$(python3 -c "import xml.etree.ElementTree as ET; print(ET.parse('repository.rdscKodiRepo/addon.xml').getroot().attrib['version'])")
 
-          # Zip the repository addon
-          zip -r public/repository.rdscKodiRepo/repository.rdscKodiRepo-1.0.0.zip repository.rdscKodiRepo -x "*.git*"
+          # Zip LegendasDivX addon using extracted version
+          zip -r "public/service.subtitles.legendasdivx/service.subtitles.legendasdivx-${ADDON_VER}.zip" service.subtitles.legendasdivx -x "*.git*"
+
+          # Copy icon/fanart to public directory if present
+          [ -f service.subtitles.legendasdivx/icon.png ] && cp service.subtitles.legendasdivx/icon.png public/service.subtitles.legendasdivx/ || true
+          [ -f service.subtitles.legendasdivx/fanart.jpg ] && cp service.subtitles.legendasdivx/fanart.jpg public/service.subtitles.legendasdivx/ || true
+
+          # Zip repository addon using extracted version
+          zip -r "public/repository.rdscKodiRepo/repository.rdscKodiRepo-${REPO_VER}.zip" repository.rdscKodiRepo -x "*.git*"
 
           # Build addons.xml properly with Python
           python3 -c "
@@ -47,8 +55,8 @@ jobs:
           tree.write('public/addons.xml', encoding='utf-8', xml_declaration=True)
           "
 
-          # Copy repository zip to root so Kodi and web root can access it directly
-          cp public/repository.rdscKodiRepo/repository.rdscKodiRepo-1.0.0.zip public/
+          # Copy repository zip and assets to public root
+          cp "public/repository.rdscKodiRepo/repository.rdscKodiRepo-${REPO_VER}.zip" public/repository.rdscKodiRepo-1.0.0.zip
           cp index.html public/index.html
 
           # Generate Hash
