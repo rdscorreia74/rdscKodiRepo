@@ -14,5 +14,44 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Build Kodi Repo
-        uses: xbmc/action-kodi-repo-generator@v1
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Generate Kodi Repo Files
+        run: |
+          mkdir -p public/service.subtitles.legendasdivx
+          
+          # Create zip file for the addon
+          cd service.subtitles.legendasdivx
+          zip -r ../public/service.subtitles.legendasdivx/service.subtitles.legendasdivx-1.0.7.zip .
+          cd ..
+
+          # Generate addons.xml
+          echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' > public/addons.xml
+          echo '<addons>' >> public/addons.xml
+          
+          if [ -f repository.myrepo/addon.xml ]; then
+            mkdir -p public/repository.myrepo
+            cd repository.myrepo
+            zip -r ../public/repository.myrepo/repository.myrepo-1.0.0.zip .
+            cd ..
+            sed '/<?xml/d' repository.myrepo/addon.xml >> public/addons.xml
+          fi
+
+          if [ -f service.subtitles.legendasdivx/addon.xml ]; then
+            sed '/<?xml/d' service.subtitles.legendasdivx/addon.xml >> public/addons.xml
+          fi
+
+          echo '</addons>' >> public/addons.xml
+
+          # Generate MD5 Checksum
+          cd public
+          md5sum addons.xml | cut -d ' ' -f 1 > addons.xml.md5
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
