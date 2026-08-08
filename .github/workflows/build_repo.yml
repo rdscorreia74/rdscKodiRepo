@@ -43,6 +43,9 @@ jobs:
           sed '/<?xml/d' service.subtitles.legendasdivx/addon.xml >> public/addons.xml
           echo '</addons>' >> public/addons.xml
 
+          # Create default web landing page
+          cp index.html public/index.html
+          
           # Generate Hash
           cd public
           md5sum addons.xml | cut -d ' ' -f 1 > addons.xml.md5
