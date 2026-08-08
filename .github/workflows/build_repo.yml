@@ -43,7 +43,8 @@ jobs:
           sed '/<?xml/d' service.subtitles.legendasdivx/addon.xml >> public/addons.xml
           echo '</addons>' >> public/addons.xml
 
-          # Create default web landing page
+          # Copy repository zip to root so Kodi and web root can access it directly
+          cp public/repository.rdscKodiRepo/repository.rdscKodiRepo-1.0.0.zip public/
           cp index.html public/index.html
           
           # Generate Hash
