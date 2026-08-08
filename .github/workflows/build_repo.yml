@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 'rdscorreia74/service.subtitles.legendasdivx' # <-- Change this to your addon's repo name
+          ref: 'Matrix'
           path: 'service.subtitles.legendasdivx'
 
       - name: Generate Kodi Repo Files
