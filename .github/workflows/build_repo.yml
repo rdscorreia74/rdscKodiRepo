@@ -25,17 +25,13 @@ jobs:
         run: |
           mkdir -p public/service.subtitles.legendasdivx
           mkdir -p public/repository.rdscKodiRepo
-          
+
           # Zip the LegendasDivX addon
-          cd service.subtitles.legendasdivx
           zip -r public/service.subtitles.legendasdivx/service.subtitles.legendasdivx-1.0.7.zip service.subtitles.legendasdivx -x "*.git*"
-          cd ..
 
           # Zip the repository addon
-          cd repository.rdscKodiRepo
-          zip -r repository.rdscKodiRepo-1.0.0.zip repository.rdscKodiRepo/
-          cd ..
-
+          zip -r public/repository.rdscKodiRepo/repository.rdscKodiRepo-1.0.0.zip repository.rdscKodiRepo -x "*.git*"
+          
           # Build addons.xml
           echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' > public/addons.xml
           echo '<addons>' >> public/addons.xml
