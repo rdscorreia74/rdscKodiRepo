@@ -32,6 +32,20 @@ jobs:
           # Zip the repository addon
           zip -r public/repository.rdscKodiRepo/repository.rdscKodiRepo-1.0.0.zip repository.rdscKodiRepo -x "*.git*"
 
+          # Build addons.xml properly with Python
+          python3 -c "
+import xml.etree.ElementTree as ET
+
+root = ET.Element('addons')
+for path in ['repository.rdscKodiRepo/addon.xml', 'service.subtitles.legendasdivx/addon.xml']:
+    tree = ET.parse(path)
+    root.append(tree.getroot())
+
+tree = ET.ElementTree(root)
+ET.indent(tree, space='  ')
+tree.write('public/addons.xml', encoding='utf-8', xml_declaration=True)
+"
+
           # Build addons.xml
           echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' > public/addons.xml
           echo '<addons>' >> public/addons.xml
