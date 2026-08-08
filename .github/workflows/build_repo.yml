@@ -11,42 +11,38 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout Repo Code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Checkout LegendasDivX Addon Code
+        uses: actions/checkout@v4
         with:
-          python-version: '3.x'
+          repository: 'rdscorreia74/service.subtitles.legendasdivx' # <-- Change this to your addon's repo name
+          path: 'service.subtitles.legendasdivx'
 
       - name: Generate Kodi Repo Files
         run: |
           mkdir -p public/service.subtitles.legendasdivx
+          mkdir -p public/repository.rdscKodiRepo
           
-          # Create zip file for the addon
+          # Zip the LegendasDivX addon
           cd service.subtitles.legendasdivx
-          zip -r ../public/service.subtitles.legendasdivx/service.subtitles.legendasdivx-1.0.7.zip .
+          zip -r ../public/service.subtitles.legendasdivx/service.subtitles.legendasdivx-1.0.7.zip . -x "*.git*"
           cd ..
 
-          # Generate addons.xml
+          # Zip the repository addon
+          cd repository.rdscKodiRepo
+          zip -r ../public/repository.rdscKodiRepo/repository.rdscKodiRepo-1.0.0.zip . -x "*.git*"
+          cd ..
+
+          # Build addons.xml
           echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' > public/addons.xml
           echo '<addons>' >> public/addons.xml
-          
-          if [ -f repository.myrepo/addon.xml ]; then
-            mkdir -p public/repository.myrepo
-            cd repository.myrepo
-            zip -r ../public/repository.myrepo/repository.myrepo-1.0.0.zip .
-            cd ..
-            sed '/<?xml/d' repository.myrepo/addon.xml >> public/addons.xml
-          fi
-
-          if [ -f service.subtitles.legendasdivx/addon.xml ]; then
-            sed '/<?xml/d' service.subtitles.legendasdivx/addon.xml >> public/addons.xml
-          fi
-
+          sed '/<?xml/d' repository.rdscKodiRepo/addon.xml >> public/addons.xml
+          sed '/<?xml/d' service.subtitles.legendasdivx/addon.xml >> public/addons.xml
           echo '</addons>' >> public/addons.xml
 
-          # Generate MD5 Checksum
+          # Generate Hash
           cd public
           md5sum addons.xml | cut -d ' ' -f 1 > addons.xml.md5
 
